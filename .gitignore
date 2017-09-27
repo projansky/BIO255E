@@ -1,6 +1,12 @@
 # Stop keeping track of .docx files 
 *.docx 
 
+# Stop keeping track of Readings 
+Readings/*
+
+# Stop keeping track of .DS 
+*.DS_Store
+
 # History files
 .Rhistory
 .Rapp.history
