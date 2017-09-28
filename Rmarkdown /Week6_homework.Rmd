@@ -9,7 +9,7 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r tideFunction, echo= FALSE}
+``` {r tideFunction}
 
 # coops_tide_ht_retrieval.R
 # Author: Luke Miller Feb 2011
@@ -175,7 +175,7 @@ plotTides= function(df){
 ```
 
 
-``` {r plotJan}
+``` {r plotJan, cache= TRUE}
 Jan= NOAAFunction(station= 9413450, startDate = 20170101, endDate = 20170131 )
 
 plotTides(Jan)
@@ -184,7 +184,7 @@ plotTides(Jan)
 
 January 01 - January 31, 2017 
 
-``` {r plotFeb}
+``` {r plotFeb, cache= TRUE}
 Feb= NOAAFunction(station= 9413450, startDate = 20170201, endDate = 20170228 )
 
 plotTides(Feb)
@@ -192,7 +192,7 @@ plotTides(Feb)
 
 Feburary 01 - Feburary 28, 2017 
 
-``` {r plotMar}
+``` {r plotMar, cache= TRUE}
 Mar= NOAAFunction(station= 9413450, startDate = 20170301, endDate = 20170330 )
 
 plotTides(Mar)
