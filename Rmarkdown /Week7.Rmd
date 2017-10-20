@@ -1,0 +1,66 @@
+---
+title: "Week 7"
+author: "Dylan Projansky"
+date: "10/4/2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r test1}
+test1= "The current year is 2016"
+
+# Exercise 1 
+my_pattern= "[0-9]"
+my_pattern= "[xqb]"
+grepl(pattern= my_pattern, test1)
+
+temp= gregexpr(my_pattern, test1)
+string_position= temp[[1]]
+
+# substr(test1, 21, 24)
+# 2016 
+# substr(test1, string_position[1], string_position[length(string_position)])
+# 2016 
+
+# Exercise 2 
+gregexpr("[[:blank:]]", test1)
+
+# Exercise 3 
+my_pattern= "[[:upper:][:digit:]]"
+grepl(my_pattern, test1)
+
+# Exercise 4 
+temp= regexpr(pattern= "[[:blank:]]", test1)
+first_space= temp[[1]][1]
+
+# Exercise 5 
+my_pattern= "[[:lower:]].[[:digit:]]"
+grepl(my_pattern, test1)
+gregexpr(my_pattern, test1)[[1]][1]
+
+# Exercise 6 
+my_pattern= "\\s[[:lower:]][[:lower:]]\\s"
+string_pos3= gregexpr(my_pattern, test1)[[1]][1]
+
+# Exercise 7 
+test2= sub(my_pattern, replacement= " is not ", test1)
+
+# Exercise 8 
+my_pattern= "\\s[[:lower:]]{2}\\s"
+gregexpr(my_pattern, test1)[[1]][1]
+
+# Exercise 9 
+my_pattern= "\\d{4}"
+temp= gregexpr(my_pattern, test2)
+string_pos4 = temp[[1]][1]
+
+# Exercise 10 
+substr(test2, start= string_pos4, stop= string_pos4 + 1) 
+
+my_pattern= "\\d{2}"
+
+```

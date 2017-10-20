@@ -1,0 +1,87 @@
+---
+title: "Week9"
+author: "Dylan Projansky"
+date: "10/18/2017"
+output: word_document
+---
+```{r importingfiles}
+
+fnames= dir("../data/temperature_trials", full.names = TRUE)
+
+for(i in 1:length(fnames) ) {
+  # open each file in turn 
+  temp= read.csv(fnames[i])
+  
+  loc= regexpr(pattern= "Trial[0-9]*", text= fnames[i])
+  trialNumber= as.numeric(substr(fnames[i], start= loc[[1]][1] + 5, 
+         stop= loc[[1]][1] + attr(loc, "match.length") -1)) 
+  temp$TrialNumber= trialNumber
+  temp$DateTime= as.POSIXct(temp$DateTime, origin= '1970-1-1', tz= "")
+  
+  difftimes= difftime(temp$DateTime, temp$DateTime[1], units = "mins")
+  # Create column of data for elapsed time in minutes 
+  temp$DiffTimes = difftimes
+  temp$ElaspeTimeMin= as.numeric(temp$DiffTimes)
+  
+  if(i == 1){
+    res= temp
+  } else {
+    res= rbind(res, temp)
+  }
+}
+
+```
+The code above is used to import the temperature_trial data files into r. The datetime was adjusted to POSIX time and then adjusted to show elasped time in minutes. These files were then bound together in one large dataframe. 
+```{r plotRes}
+
+# Make an initial plot 
+plot(x= res$ElaspeTimeMin[res$TrialNumber == 1], y= res$TC0[res$TrialNumber == 1],
+     type= 'l', xlab= "Elasped Time, minutes", ylab= "Temperature, C", las= 1, 
+     xlim= c(0,180), ylim= c(15,35), main= 'Channel TC0')
+
+# Use for loop to add the other Trials' lines 
+trialNums= unique(res$TrialNumber)
+for (y in 2:length(trialNums)){
+  lines(x= res$ElaspeTimeMin[res$TrialNumber == trialNums[y]], 
+        y= res$TC0[res$TrialNumber == trialNums[y]], col= y )
+}
+
+```
+
+This first plot was created by using the initial loop for inputting the data. Therefore, should more temperature trials be added, the plot will be updated continuously. This is done by taking the first trial [1] and creating a singular plot with it. If i does not equal 1, then that trial will be added using the points function and will change the color depending on the value for i. 
+
+```{r importHeating_trial}
+library(readxl)
+heatingInfo= read_xlsx("../data/Heating_trial_info.xlsx")
+
+heatingInfo$TCchannel= as.character(heatingInfo$TCchannel)
+```
+The code above imports the heating_trial_info into r and changes the TC channel into a character string. 
+``` {r continued}
+
+for (x in 1: 96){
+  if (heatingInfo$TCLocation[x] == "In50") { 
+    chloc= regexpr(pattern = "[[:digit:]]", heatingInfo$TCchannel[x])
+    # Extraction of channel number 
+    chNum= substr(heatingInfo$TCchannel[x], 
+              start= chloc[[1]][1], 
+              stop= chloc[[1]][1])
+    # Put together column name depending on the value of TCchannel from row "x"
+    TCloc= paste("TC", chNum, sep = '')
+    trialNumber= heatingInfo$TrialNumber[x]
+    
+    temps= res[res$TrialNumber == trialNumber, TCloc]
+    times= res$ElaspeTimeMin[res$TrialNumber == trialNumber]
+  }
+  
+  if(x == 1){
+    plot(times, temps, type = 'l', xlab= "Elapsed Time, minutes", ylab= "Temperature, C", 
+         las= 1, main= "Location In50", xlim= c(0, 180), ylim= c(15, 35))
+  } else {
+    lines(times, temps, col= x)
+  }
+}
+```
+
+This plot took more steps to complete because of the need to access the In50 locations from the Heating_Info file. By using a for loop, we extracted the location of the channel by using the regular expression function and pasting it together to create the location of the channel. Once the channel was located for each trial associated with the In50 location, the temperature and times were saved to essentially create a column of data to use in a plot. The plot was created by creating the intial plot when x was equal to 1 and then more lines were added for every time x did not equal 1. This needed to be done in the same for loop to avoid inputting any data that didn't include the In50 channels. 
+

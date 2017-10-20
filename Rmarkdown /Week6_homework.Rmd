@@ -9,7 +9,7 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r tideFunction}
+``` {r tideFunction, echo= FALSE}
 
 # coops_tide_ht_retrieval.R
 # Author: Luke Miller Feb 2011

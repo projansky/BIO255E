@@ -1,0 +1,49 @@
+---
+title: "Week 7 Homework"
+author: "Dylan Projansky"
+date: "10/4/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r Week 7 Homework, cache= TRUE}
+
+df= read.csv('../data/california-state-university-2015.csv')
+df$Employee.Name= as.character(df$Employee.Name)
+
+```
+
+``` {r All entries with name "Martinez"}
+df$Employee.Name[grepl(pattern= "Martinez", df$Employee.Name)]
+```
+
+```{r Everyone whose name starts with the letters "Wil"}
+df$Employee.Name[grepl(pattern= "^Wil", df$Employee.Name)]
+```
+
+``` {r Everyone with a hyphenated name} 
+df$Employee.Name[grepl(pattern= "-", df$Employee.Name)]
+```
+
+``` {r Everyone whose middle name is Paul} 
+df$Employee.Name[grepl(pattern= "^\\w* Paul \\w{2}", df$Employee.Name)] 
+```
+
+``` {r All people with the last name Martinez}  
+df$Employee.Name[grepl(pattern= " Martinez", df$Employee.Name)]
+```
+
+``` {r All people with the last name Martinez (but no hyphenated names, no Jr.} 
+df$Employee.Name[grepl(pattern= " Martinez$", df$Employee.Name)]
+```
+
+``` {r First name starts with E., has a middle initial, and last name is 'Martinez}
+df$Employee.Name[grepl(pattern= "E\\w* \\w Martinez", df$Employee.Name)]
+``` 
+
+``` {r First name starts with E, has no middle initial, and last name Martinez} 
+df$Employee.Name[grepl(pattern= "^E\\w* Martinez$", df$Employee.Name)]
+``` 

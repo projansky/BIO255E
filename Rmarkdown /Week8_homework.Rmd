@@ -1,0 +1,53 @@
+---
+title: "Week8_homework"
+author: "Dylan Projansky"
+date: "10/11/2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r importingFiles, cachee= TRUE}
+
+fnames= dir("../data/temperature_trials", full.names = TRUE)
+
+for(i in 1:length(fnames) ) {
+  # open each file in turn 
+  temp= read.csv(fnames[i])
+  
+  loc= regexpr(pattern= "Trial[0-9]*", text= fnames[i])
+
+  trialNumber= as.numeric(substr(fnames[i], start= loc[[1]][1] + 5, 
+         stop= loc[[1]][1] + attr(loc, "match.length") -1)) 
+
+  temp$TrialNumber= trialNumber
+  
+  temp$DateTime= as.POSIXct(temp$DateTime, origin= '1970-1-1', tz= "")
+  difftimes= difftime(temp$DateTime, temp$DateTime[1], units = "mins")
+  # Create column of data for elapsed time in minutes 
+  
+  temp$DiffTimes = difftimes
+  temp$ElaspeTimeMin= as.numeric(temp$DiffTimes)
+  
+  if(i == 1){
+    res= temp
+    # For the first dataset in fnames, create a plot 
+    plot(x= res$ElaspeTimeMin, y= res$TC0, type = "l", xlim = c(0, 180), ylim = c(15, 35), 
+         main = "Channel TC0 for each Trial", xlab = "Elapsed Time, minutes", 
+         ylab= "Temperature, C", las= 1) 
+  } else {
+    # For all additional datasets in fnames, add a new line to the existing plot 
+    # For each of those points, make the new plot in a new color. 
+    points(x= temp$ElaspeTimeMin, y= temp$TC0, type = "l", col= i)
+    res= rbind(res, temp)
+  }
+
+}
+
+```
+
+
+This first plot was created by using the initial loop for inputting the data. Therefore, should more temperature trials be added, the plot will be updated continuously. This is done by taking the first trial [1] and creating a singular plot with it. If i does not equal 1, then that trial will be added using the points function and will change the color depending on the value for i. 
+
