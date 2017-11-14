@@ -1,0 +1,86 @@
+---
+title: "Week11"
+author: "Dylan Projansky"
+date: "11/1/2017"
+output: 
+  word_document: 
+    fig_caption: true 
+---
+
+```{r setup, include=TRUE, echo= TRUE}
+knitr::opts_chunk$set(echo = FALSE, fig.path = 'figs/', cache= TRUE)
+```
+
+This example will be working with the built-in 'pressure' data" 
+```{r pressureData, echo=TREU}
+summary(pressure) 
+pressure= pressure
+```
+
+## Increasing the size of the image 
+Adding a 'dpi=xxx' argument inside the chunk header will create a larger png file 
+{r pressure, dpi= 300} will increase the file dimensions to roughly 1500x1200px (5"x 300dpi = 1500px)
+
+``` {r pressure2, dpi= 300}
+plot(pressure, col= 'blue')
+```
+
+## Specifyng the image dimensions explicityly 
+Adding the arguments for 'fig.width' and 'fig.height' inside the R markdown chunk
+
+``` {r pressure3, dpi= 300, fig.width=4, fig.height=7}
+plot(pressure, col= 'red')
+```
+
+## Saving images as vector format files (pdf) 
+{r pressure4, dpi=300, fig.width=7, fig.height=5, dev=c('png', 'pdf')}
+Knit both a png version in the word document and a pdf version 
+``` {r pressure4, dpi=300, fig.width=7, fig.height=5, dev=c('png', 'pdf')}
+plot(pressure) 
+```
+
+## ggplot2 tutorial 
+
+``` {r ggplot2} 
+library(ggplot2)
+diamonds= diamonds # make diamonds a data fram visible in the workspace 
+
+ggplot(diamonds) # if onyl the dataset is known 
+ggplot(diamonds, aes(x= carat) ) # if only X-axis is known 
+# the Y-axis can be specified in respective geoms 
+ggplot(diamonds, aes(x= carat, y= price)) # if both X and Y axes are fixed for all layers
+
+ggplot(diamonds, aes(x= carat, y= price)) + geom_point()
+# This will plot a scatter plot 
+
+ggplot(diamonds, aes(x= carat, y= price, color= cut)) + geom_point()
+
+ggplot(diamonds, aes(x= carat, y= price, color= cut)) + geom_point()+ geom_smooth()
+
+ggplot(diamonds, aes(x=carat, y=price)) + geom_point(aes(color=cut)) + geom_smooth()
+# Line only goes through the aggregate of carat and price and not individual cuts 
+
+ggplot(diamonds, aes(x=carat, y=price, color=cut, shape=color)) + geom_point()
+
+ggplot(diamonds, aes(x=carat, y=price)) + geom_point(aes(color=cut), alpha= 0.3) + geom_smooth()
+
+ggplot(diamonds, aes(x= carat, y= price, color= cut)) + geom_point()+ labs(title= "Scatterplot", x= "Carat", y= "Price")
+
+gg= ggplot(diamonds, aes(x= carat, y= price, color= cut)) + geom_point()
+
+gg= gg + labs(title= "Scatterplot", x= "Carat", y= "Price")
+print(gg)
+
+
+gg1= gg+ theme(plot.title = element_text(size=30, face= "bold"), 
+               axis.text.x = element_text(size=18), 
+               axis.text.y = element_text(size=18), 
+               axis.title.x = element_text(size=25), 
+               axis.title.y = element_text(size=25)) + 
+  scale_color_discrete(name= "Cut of diamonds") 
+print(gg1)
+
+gg+ facet_wrap (~cut, ncol = 3)
+
+``` 
+
