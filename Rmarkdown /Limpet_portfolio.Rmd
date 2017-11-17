@@ -58,21 +58,13 @@ limpet$AreaJan.mm2= as.numeric(limpet$AreaJan.mm2)
 
 # Convert the dates to month-year format 
 limpet$Date= as.Date.character(limpet$Date, "%Y%m%d" )
-limpet$Date= format(as.Date(limpet$Date), "%m-%Y")
 limpet$Date2= as.Date.character(limpet$Date2, "%Y%m%d" )
-limpet$Date2= format(as.Date(limpet$Date2), "%m-%Y")
 limpet$Date3= as.Date.character(limpet$Date3, "%Y%m%d" )
-limpet$Date3= format(as.Date(limpet$Date3), "%m-%Y")
 limpet$Date4= as.Date.character(limpet$Date4, "%Y%m%d" )
-limpet$Date4= format(as.Date(limpet$Date4), "%m-%Y")
 limpet$Date5= as.Date.character(limpet$Date5, "%Y%m%d" )
-limpet$Date5= format(as.Date(limpet$Date5), "%m-%Y")
 limpet$Date6= as.Date.character(limpet$Date6, "%Y%m%d" )
-limpet$Date6= format(as.Date(limpet$Date6), "%m-%Y")
 limpet$Date7= as.Date.character(limpet$Date7, "%Y%m%d" )
-limpet$Date7= format(as.Date(limpet$Date7), "%m-%Y")
 limpet$Date8= as.Date.character(limpet$Date8, "%Y%m%d" )
-limpet$Date8= format(as.Date(limpet$Date8), "%m-%Y")
 
 ```
 
@@ -275,7 +267,7 @@ limpet.function(24, "Oct", "Nov")
 
 ```
 
-
+The function below is a direct addition to the previous function which plots one plate growth between two consecutive months. This function plots three plates' growth between consectuive months. The function is capable of plotting any plates, but graphs best when the plate numbers are close together, example: 7, 8, 9. Like above, the months are three letter abbreviations and are written in quotation marks, example: July = "Jul", November = "Nov". 
 ``` {r 3platefunction} 
 three.plate= function(plate1, plate2, plate3, month1, month2){
   
@@ -300,10 +292,14 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
   
   temp= temp[!is.na(temp$diff),]
   
+  ymax= max(temp$diff, na.rm= TRUE)
+  ymin= min(temp$diff, na.rm= TRUE) 
+  
   plot(x= temp$Plate[temp$Plate == plate1], 
        y= temp$diff[temp$Plate == plate1], 
        col= "blue", pch= 1, 
-       xlim = c(plate1 -2 , plate3 + 2), 
+       xlim = c(plate1 -3 , plate3 + 3), 
+       ylim= c(ymin -2, ymax +2),
        xlab= "Plate Number", ylab= "Limpet Growth mm2")
   points(x= temp$Plate[temp$Plate == plate2], 
          y= temp$diff[temp$Plate == plate2], 
@@ -324,56 +320,127 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
 
 ``` 
 
+``` {r five_plate_growth}
 
-``` {r 6monthplot}
-tracker= function(plate1){
+five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
+  
   temp1= as.data.frame(limpet[limpet$Plate == plate1,])
-  # This subset outs the plate into a seperate date frame 
-
-  temp1$Date2= 07
-  temp1Date3= 08
-  temp1$Date4= 09
-  temp1$Date5= 10
-  temp$Date6= 11 
-  temp$Date7= 12 
-  temp$Date8= 13
-  # I am not sure of the best way to concert the months to dates, specifically
-  # the month of January because it would be set to 1 which would put it at 
-  # the beginning of the plot 
+  temp2= as.data.frame(limpet[limpet$Plate == plate2,])
+  temp3= as.data.frame(limpet[limpet$Plate == plate3,])
+  temp4= as.data.frame(limpet[limpet$Plate == plate4,])
+  temp5= as.data.frame(limpet[limpet$Plate == plate5,])
+  temp= rbind(temp1, temp2, temp3, temp4, temp5)
   
-  # Another issue I am having is the intorduction of NA values and how to 
-  # ignore them 
-
-
-  plot(x=temp1$Date2, y= temp1$GrowthJul.Area.mm2, 
-       xlim= c(6, 14), ylim = c(-20, 20) )
-  points(x= temp1$Date3, y= temp1$GrowthAug.Area.mm2)
-  points(x= temp1$Date4, y= temp1$GrowthSep.Area.mm2)
-  points(x= temp1$Date5, y= temp1$GrowthOct.Area.mm2)
-  points(x= temp1$Date6, y= temp1$GrowthNov.Area.mm2)
-  points(x= temp1$Date7, y= temp1$GrowthDec.Area.mm2)
-  points(x= temp1$Date8, y= temp1$GrowthJan.Area.mm2)
+  startMonth= paste('Area', month1, '.mm2', sep= '' )
   
-  # Another thing I am not 100% sure on is the creating lines that follow 
-  # the limpet growth 
+  endMonth= paste('Area', month2, '.mm2', sep = '')
   
-  # Would you be able to help me with figuring out an idea of where to go 
-  # with this 
+  tagMonth= paste('Tag.', month1, sep = '')
   
+  replacementMonth= paste('Replacement', month2, sep = '')
+  
+  temp$diff= temp[, endMonth] -  temp[, startMonth]
+  
+  as.character(temp[, replacementMonth])
+  
+  temp$diff[temp[,replacementMonth] == TRUE]= NA
+  
+  temp= temp[!is.na(temp$diff),]
+  
+  ymax= max(temp$diff, na.rm= TRUE)
+  ymin= min(temp$diff, na.rm= TRUE) 
+  
+  plot(x= temp$Plate[temp$Plate == plate1], 
+       y= temp$diff[temp$Plate == plate1], 
+       col= "blue", pch= 1, 
+       xlim = c(plate1 -3 , plate3 + 3), 
+       ylim= c(ymin -2, ymax +2),
+       xlab= "Plate Number", ylab= "Limpet Growth mm2")
+  points(x= temp$Plate[temp$Plate == plate2], 
+         y= temp$diff[temp$Plate == plate2], 
+         col="red", pch= 2 )
+  points(x= temp$Plate[temp$Plate == plate3], 
+         y= temp$diff[temp$Plate == plate3], 
+         col= "green",pch= 3 )
+  points(x= temp$Plate[temp$Plate == plate4], 
+         y= temp$diff[temp$Plate == plate4], 
+         col= "orange",pch= 4 )
+  points(x= temp$Plate[temp$Plate == plate5], 
+         y= temp$diff[temp$Plate == plate5], 
+         col= "black",pch= 5 )
+  text(x= temp$Plate, y=temp$diff, 
+       labels = temp[, tagMonth],
+       cex=0.7, pos = 4)
+  abline(b= 0, h= 5, col= "red")
+  abline(b=0, h= -5, col= "red")
+  legend("topright", legend= c(plate1, plate2, plate3, plate4, plate5), 
+         col = c("blue", "red", "green", "orange", "black"), 
+         pch = c(1, 2, 3, 4, 5), title = "Plate Number", cex = 0.75 ) 
+                                  
 }
 
-```
+``` 
 
 ``` {r dataframe}
 dataframe= function(plate1){
   data= as.data.frame(limpet[limpet$Plate == plate1,])
   data= subset(data, select= c(1:6, 8:12, 14:18, 20:24, 26:30, 32:36, 38:42,
                                44:47) )
+
+  sub1= subset(data, select = c("Date2", "Tag.Jul", "ReplacementJul", "AreaJul.mm2", "GrowthJul.Area.mm2"))
+  colnames(sub1)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub1$Num= 1:nrow(temp)
+  sub2= subset(data, select= c("Date3", "Tag.Aug", "ReplacementAug", "AreaAug.mm2", "GrowthAug.Area.mm2"))
+  colnames(sub2)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub2$Num= 1:nrow(temp)
+  sub3= subset(data, select = c("Date3", "Tag.Sep", "ReplacementSep", "AreaSep.mm2","GrowthSep.Area.mm2"))
+  colnames(sub3)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub3$Num= 1:nrow(temp)
+  sub4= subset(data, select = c("Date4", "Tag.Oct", "ReplacementOct", "AreaOct.mm2","GrowthOct.Area.mm2"))
+  colnames(sub4)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub4$Num= 1:nrow(temp)
+  sub5= subset(data, select = c("Date5", "Tag.Nov", "ReplacementNov", "AreaNov.mm2","GrowthNov.Area.mm2"))
+  colnames(sub5)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub5$Num= 1:nrow(temp)
+  sub6= subset(data, select = c("Date6", "Tag.Dec", "ReplacementDec", "AreaDec.mm2","GrowthDec.Area.mm2"))
+  colnames(sub6)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub6$Num= 1:nrow(temp)
+  sub7= subset(data, select = c("Date7", "Tag.Jan", "ReplacementJan", "AreaJan.mm2","GrowthJan.Area.mm2"))
+  colnames(sub7)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub7$Num= 1:nrow(temp)
+  
+  longdata= rbind(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
+  
+  # Clean-up 
+  rm(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
+  
+  longdata$Growth= as.numeric(longdata$Growth)
   
   filename= paste("limpet_growth_plate", plate1, ".csv", sep = '')
-  write.csv(data, file = filename )
+  write.csv(longdata, file = filename )
+
+  # Plot the Growth column vs Date column
+  # Split for each separate LimpetID
+  
+for(i in 1:nrow(longdata) ) {
+  
+  if(i == 1){
+    plot(x= longdata$Date, y= longdata$Growth, col= i)
+    text(x= longdata$Date, y= longdata$Growth, 
+       labels = longdata[, "Tag"],
+       cex=0.7, pos = 4)
+  } else {
+    points(x= longdata$Date, y= longdata$Growth, col=i+1)
+    unique(text(x= longdata$Date, y= longdata$Growth, 
+       labels = longdata[, "Tag"],
+       cex=0.7, pos = 4))
+  }
+}  
+  
+  
 
 
 
 }
 ```
+
