@@ -389,25 +389,25 @@ dataframe= function(plate1){
 
   sub1= subset(data, select = c("Date2", "Tag.Jul", "ReplacementJul", "AreaJul.mm2", "GrowthJul.Area.mm2"))
   colnames(sub1)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub1$Num= 1:nrow(temp)
+  sub1$Num= 1:nrow(data)
   sub2= subset(data, select= c("Date3", "Tag.Aug", "ReplacementAug", "AreaAug.mm2", "GrowthAug.Area.mm2"))
   colnames(sub2)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub2$Num= 1:nrow(temp)
+  sub2$Num= 1:nrow(data)
   sub3= subset(data, select = c("Date3", "Tag.Sep", "ReplacementSep", "AreaSep.mm2","GrowthSep.Area.mm2"))
   colnames(sub3)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub3$Num= 1:nrow(temp)
+  sub3$Num= 1:nrow(data)
   sub4= subset(data, select = c("Date4", "Tag.Oct", "ReplacementOct", "AreaOct.mm2","GrowthOct.Area.mm2"))
   colnames(sub4)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub4$Num= 1:nrow(temp)
+  sub4$Num= 1:nrow(data)
   sub5= subset(data, select = c("Date5", "Tag.Nov", "ReplacementNov", "AreaNov.mm2","GrowthNov.Area.mm2"))
   colnames(sub5)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub5$Num= 1:nrow(temp)
+  sub5$Num= 1:nrow(data)
   sub6= subset(data, select = c("Date6", "Tag.Dec", "ReplacementDec", "AreaDec.mm2","GrowthDec.Area.mm2"))
   colnames(sub6)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub6$Num= 1:nrow(temp)
+  sub6$Num= 1:nrow(data)
   sub7= subset(data, select = c("Date7", "Tag.Jan", "ReplacementJan", "AreaJan.mm2","GrowthJan.Area.mm2"))
   colnames(sub7)= c("Date", "Tag", "Replacement", "Area", "Growth")
-  sub7$Num= 1:nrow(temp)
+  sub7$Num= 1:nrow(data)
   
   longdata= rbind(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
   
@@ -422,18 +422,20 @@ dataframe= function(plate1){
   # Plot the Growth column vs Date column
   # Split for each separate LimpetID
   
-for(i in 1:nrow(longdata) ) {
-  
-  if(i == 1){
-    plot(x= longdata$Date, y= longdata$Growth, col= i)
-    text(x= longdata$Date, y= longdata$Growth, 
-       labels = longdata[, "Tag"],
-       cex=0.7, pos = 4)
-  } else {
-    points(x= longdata$Date, y= longdata$Growth, col=i+1)
-    unique(text(x= longdata$Date, y= longdata$Growth, 
-       labels = longdata[, "Tag"],
-       cex=0.7, pos = 4))
+ 
+
+  for(i in 1:nrow(longdata) ) {
+    
+    if(i == 1){
+      plot(x= longdata$Date, y= longdata$Growth, col= i)
+      text(x= longdata$Date, y= longdata$Growth, 
+         labels = longdata[, "Tag"],
+         cex=0.7, pos = 4)
+    } else {
+      points(x= longdata$Date, y= longdata$Growth, col=i+1)
+      text(x= longdata$Date, y= longdata$Growth, 
+         labels = unique(longdata[, "Tag"]),
+         cex=0.7, pos = 4)
   }
 }  
   
