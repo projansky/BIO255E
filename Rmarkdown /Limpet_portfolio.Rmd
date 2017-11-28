@@ -13,9 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ``` {r importfulldata, echo= FALSE}
 # Prepare library for reading xlsx file 
-# library(readxl)
+library(readxl)
 
-# setwd("~/Desktop/San Jose State University /Research/Limpet_Growth")
+setwd("~/Desktop/San Jose State University /Research/Limpet_Growth")
 
 df= read_xlsx("HMS_2014_limpet_growth_master_20171018.xlsx")
 ```
@@ -381,7 +381,78 @@ five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
 
 ``` 
 
-``` {r dataframe}
+``` {r dataframe_tracker}
+tracker= function(plate1){
+  data= as.data.frame(limpet[limpet$Plate == plate1,])
+  data= subset(data, select= c(1:6, 8:12, 14:18, 20:24, 26:30, 32:36, 38:42,
+                               44:47) )
+
+  sub1= subset(data, select = c("Date2", "Tag.Jul", "ReplacementJul", "AreaJul.mm2", "GrowthJul.Area.mm2"))
+  colnames(sub1)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub1$Num= 1:nrow(data)
+  sub2= subset(data, select= c("Date3", "Tag.Aug", "ReplacementAug", "AreaAug.mm2", "GrowthAug.Area.mm2"))
+  colnames(sub2)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub2$Num= 1:nrow(data)
+  sub3= subset(data, select = c("Date3", "Tag.Sep", "ReplacementSep", "AreaSep.mm2","GrowthSep.Area.mm2"))
+  colnames(sub3)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub3$Num= 1:nrow(data)
+  sub4= subset(data, select = c("Date4", "Tag.Oct", "ReplacementOct", "AreaOct.mm2","GrowthOct.Area.mm2"))
+  colnames(sub4)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub4$Num= 1:nrow(data)
+  sub5= subset(data, select = c("Date5", "Tag.Nov", "ReplacementNov", "AreaNov.mm2","GrowthNov.Area.mm2"))
+  colnames(sub5)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub5$Num= 1:nrow(data)
+  sub6= subset(data, select = c("Date6", "Tag.Dec", "ReplacementDec", "AreaDec.mm2","GrowthDec.Area.mm2"))
+  colnames(sub6)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub6$Num= 1:nrow(data)
+  sub7= subset(data, select = c("Date7", "Tag.Jan", "ReplacementJan", "AreaJan.mm2","GrowthJan.Area.mm2"))
+  colnames(sub7)= c("Date", "Tag", "Replacement", "Area", "Growth")
+  sub7$Num= 1:nrow(data)
+  
+  longdata= rbind(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
+  
+  # Clean-up 
+  rm(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
+  
+  longdata$Growth= as.numeric(longdata$Growth)
+  
+  for(i in 1:length(unique(longdata$Num)) ) {
+    
+    if(i == 1){
+      plot(x= longdata$Date[longdata$Num == i], 
+           y= longdata$Growth[longdata$Num == i], col= i, 
+           xlab= "Months", ylab= "Growth mm2",
+           ylim= c(min(longdata$Growth, na.rm= TRUE), max(longdata$Growth, na.rm = TRUE) ) )
+      text(x= longdata$Date[longdata$Num == i], 
+           y= longdata$Growth[longdata$Num == i], 
+         labels = longdata[longdata$Num == i, "Tag"],
+         cex=0.7, pos = 4)
+    } else {
+      points(x= longdata$Date[longdata$Num == i], 
+             y= longdata$Growth[longdata$Num == i], col=i+1)
+      text(x= longdata$Date[longdata$Num == i], 
+           y= longdata$Growth[longdata$Num == i], 
+         labels = longdata[longdata$Num == i, "Tag"],
+         cex=0.7, pos = 4)
+  }
+  }  
+  
+  
+for(i in 1:length(unique(longdata$Num)) ) {
+    
+    if(i == 1){  
+      lines(x= longdata$Date[longdata$Num == i], 
+           y= longdata$Growth[longdata$Num == i], col= i)
+    } else {
+      lines(x= longdata$Date[longdata$Num == i], 
+             y= longdata$Growth[longdata$Num == i], col=i+1)
+    }
+}
+
+}
+```
+
+```{r save_df}
 dataframe= function(plate1){
   data= as.data.frame(limpet[limpet$Plate == plate1,])
   data= subset(data, select= c(1:6, 8:12, 14:18, 20:24, 26:30, 32:36, 38:42,
@@ -419,30 +490,5 @@ dataframe= function(plate1){
   filename= paste("limpet_growth_plate", plate1, ".csv", sep = '')
   write.csv(longdata, file = filename )
 
-  # Plot the Growth column vs Date column
-  # Split for each separate LimpetID
-  
- 
-
-  for(i in 1:nrow(longdata) ) {
-    
-    if(i == 1){
-      plot(x= longdata$Date, y= longdata$Growth, col= i)
-      text(x= longdata$Date, y= longdata$Growth, 
-         labels = longdata[, "Tag"],
-         cex=0.7, pos = 4)
-    } else {
-      points(x= longdata$Date, y= longdata$Growth, col=i+1)
-      text(x= longdata$Date, y= longdata$Growth, 
-         labels = unique(longdata[, "Tag"]),
-         cex=0.7, pos = 4)
-  }
-}  
-  
-  
-
-
-
 }
-```
-
+``` 
