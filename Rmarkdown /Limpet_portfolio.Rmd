@@ -11,16 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 2014 Limpet Growth Tracked: Jun 2014 to Jan 2015 
 
-``` {r importfulldata, echo= FALSE}
+``` {r importfulldata, echo= TRUE, warning= FALSE}
 # Prepare library for reading xlsx file 
 library(readxl)
 
-setwd("~/Desktop/San Jose State University /Research/Limpet_Growth")
-
+# df= read_xlsx(file.choose())
 df= read_xlsx("HMS_2014_limpet_growth_master_20171018.xlsx")
 ```
 
-``` {r preparelimpet, echo= FALSE}
+``` {r preparelimpet, echo= TRUE, warning= FALSE}
 # Combine the Tag color and Tag number for each month 
 df$Tag.color = paste(df$Tag.color, df$Tag.number.Jun, sep= '')
 df$Tag.color__1 = paste(df$Tag.color__1, df$Tag.number.Jul, sep= '')
@@ -45,8 +44,8 @@ colnames(limpet)[32]= 'Tag.Nov'
 colnames(limpet)[38]= 'Tag.Dec'
 colnames(limpet)[44]= 'Tag.Jan'
 
-# Convert all of the Areas into numeric values capable of determining the difference 
-# between them 
+# Convert all of the Areas into numeric values capable of determining the difference between them 
+# Ignore the NAs introduced by coercion 
 limpet$AreaJun.mm2= as.numeric(limpet$AreaJun.mm2)
 limpet$AreaJul.mm2= as.numeric(limpet$AreaJul.mm2)
 limpet$AreaAug.mm2= as.numeric(limpet$AreaAug.mm2)
@@ -68,31 +67,36 @@ limpet$Date8= as.Date.character(limpet$Date8, "%Y%m%d" )
 
 ```
 
-``` {r limpetfunction}
+## 1 Plate Function 
+The below function creates a plot of the difference between two months, and plots the tag color and number next to the point. Lines are added at the growth mark of ±5mm2. This number was chosen as an estimate of an acceptable amount of area to be gained or lost. Growth within these red lines is assumed to be accepted. 
+``` {r limpetfunction, echo= TRUE}
 limpet.function= function(plate, month1, month2){
-  
+  # Subset data for only the single plate
   temp= as.data.frame(limpet[limpet$Plate == plate,])
   
+  # Pick out the first month Area column to be looked at
   startMonth= paste('Area', month1, '.mm2', sep= '' )
   
+  # Pick out the second month Area column to be looked at 
   endMonth= paste('Area', month2, '.mm2', sep = '')
   
+  # Look at the tag ID for each limpet 
   tagMonth= paste('Tag.', month1, sep = '')
   
+  # Look at the replacement column 
   replacementMonth= paste('Replacement', month2, sep = '')
   
+  # Create a column that calculates the difference between areas 
   temp$diff= temp[, endMonth] -  temp[, startMonth]
   
+  # If replacement is TRUE, then we will make the difference be NA 
   as.character(temp[, replacementMonth])
-  
   temp$diff[temp[,replacementMonth] == TRUE]= NA
-  
-  # Check for replacement 
-  # if (temp[,replacementMonth == TRUE]){
-  #   temp$diff = NA} 
   
   temp= temp[!is.na(temp$diff),]
   
+  # Plot the difference between two months 
+  # ±5 is the "acceptable" growth/loss for a limpet 
   plot(x= temp$Plate, y= temp$diff, xlim = c(plate - 2, plate + 2) )
   text(x= temp$Plate, y=temp$diff, 
        labels = temp[, tagMonth],
@@ -102,173 +106,110 @@ limpet.function= function(plate, month1, month2){
                                   
 }
 ``` 
-The above function creates a plot of the difference between two months, and plots the tag color and number next to the point. Lines are added at the growth mark of ±5mm2. This number was chosen as an estimate of an acceptable amount of area to be gained or lost. Growth within these red lines is assumed to be accepted. 
 
-``` {r plate1_W5}
-
+## Plate 1: 
+  * W5 is partially covered by another limpet in September
+  * W5 might have been replaced from October to November
+  * Coloration in pictures look slightly different
+``` {r plate1_W5, echo= TRUE}
 limpet.function(1, "Aug", "Sep")
-# W5 is partially covered by another limpet in September
 limpet.function(1, "Sep", "Oct")
 limpet.function(1, "Oct", "Nov")
-# W5 might have been replaced from October to November 
-# Coloration in pictures look slightly different 
 
 ```
-
+  
+## Plate 2:  
 The limpets of plate 2 all maintained a growth of ±5 mm2 per month 
 
-``` {r plate3_Or68}
-
+## Plate 3: 
+  * Or68 growth: Nov (62.83), Dec(86.67), Jan(62.94)
+  * Believe that the measurement in December is incorrect
+  * Change in growth from Nov to December is 0.11 
+``` {r plate3_Or68, echo= TRUE}
 limpet.function(3, "Nov", "Dec")
 limpet.function(3, "Dec", "Jan")
 
-# Or68 growth: Nov (62.83), Dec(86.67), Jan(62.94)
-# Believe that the measurement in December is incorrect 
-# Change in growth from Nov to December is 0.11 
-
 ```
-
+  
+## Plate 7: 
 The limpets of plate 7 all maintained a growth of ±5 mm2 per month 
 
-
-``` {r plate8}
-
+## Plate 8: 
+  * W19 increases by about 7 
+  * Change seems to be due to bag angle in Jun of W19 
+  
+  * Or47 increases by about 6 
+  * This growth may be accurate
+``` {r plate8, echo= TRUE}
 limpet.function(8, "Jun", "Jul")
-# W19 increases by about 7 
-# Change seems to be due to bag angle in Jun of W19 
-
 limpet.function(8, "Jul", "Aug")
-# Or47 increases by about 6 
-# This growth may be accurate
 
 ```
 
+## Plate 9: 
 The limpets of plate 9 all maintained a growth of ±5 mm2 per month 
 
-``` {r plate10}
-
+## Plate 10: 
+  * B78 looks like the same mussel and may have grown an accurate ammount from the months of August to October 
+  * Or22 becomes Or56. Looks like the same mussel with new tag, but not 100%
+  * W32 also becomes W63 from Nov to Dec 
+``` {r plate10, echo= TRUE}
 limpet.function(10, "Aug", "Sep")
-# B78 looks like the same mussel and may have grown an accurate ammount 
 limpet.function(10, "Sep", "Oct")
-# B78 looks like the same mussel and may have grown an accurate ammount 
 limpet.function(10, "Nov", "Dec")
-# Or22 becomes Or56. Looks like the same mussel with new tag, but not 100% 
-# W32 also becomes W63 from Nov to Dec 
 
 ```
 
-``` {r plate11}
-
+## Plate 11 
+  June to July 
+    * Gr11 seems to be accurate and could be due to the camera angle
+    * I believe W33 and W62 are not the same mussel 
+  September to October 
+    * W62 and Or62 both have a difference of ±40
+    * This is because we flipped the W62 and Or62 placement in the Excell file
+``` {r plate11, echo= TRUE}
 limpet.function(11, "Jun", "Jul")
-# W33 and Gr11
-# Gr11 seems to be accurate and could be due to the camera angle 
-# I believe W33 and W62 are not the same mussel 
 limpet.function(11, "Sep", "Oct")
-# W62 and Or62 both have a difference of ±40
-# We flipped the W62 and Or62 placement in the Excell file
-
 
 ```
 
-``` {r plate12}
+## Plate 12 
+  June to July 
+    * Or19 and B64 may both fall outside of the ±5 range because of the camera angle 
+  August to September 
+    * Gr7 may also be due to the camera angle 
+  October to Novmber 
+    * W87 is partially covered in October and then is alone in November 
+``` {r plate12, echo= TRUE}
 limpet.function(12, "Jun", "Jul")
-# Or19: camera angle? 
-# B64: camera angle? 
 limpet.function(12, "Aug", "Sep")
-# Gr7: camera angle? 
 limpet.function(12, "Oct", "Nov")
-# W87 is partially covered in October and then is alone in November 
-```
 
-``` {r plate16}
+```
+    
+## Plate 16:
+  July to August 
+    * Or28, Or26, Gr57: All appear accurate with some variance to camera angle and overlap 
+  * B88: overlap in September  
+  * Or16: overlap in December 
+``` {r plate16, echo= TRUE}
 limpet.function(16, "Jul", "Aug")
-# Or28, Or26, Gr57 
-# All appear accurate with some variance to camera angle and overlap 
 limpet.function(16, "Aug", "Sep")
-# B88: overlap in September  
 limpet.function(16, "Dec", "Jan")
 # Or16: overlap in December  
 ```
 
-``` {r plate17}
+## Plate 17: 
+  *Or27: heavily chipped in November, seems accurate 
+``` {r plate17, echo= TRUE}
 limpet.function(17, "Nov", "Dec")
-# Or27: heavily chipped in November, seems accurate 
-``` 
-
-``` {r plate18}
-limpet.function(18, "Jul", "Aug")
-limpet.function(18, "Aug", "Sep")
-limpet.function(18, "Sep", "Oct")
-limpet.function(18, "Oct", "Nov")
-limpet.function(18, "Nov", "Dec")
-
-
-```
-The large growth of plate 18 limpets may be due to human errors of camera angle or calculating the mm2, but the limpet measurements appear reasonalbe 
-
-``` {r plate19}
-limpet.function(19, "Aug", "Sep")
-# W47: possible error in human measurements 
-```
-
-``` {r plate20}
-limpet.function(20, "Aug", "Sep")
-# Or34: Sep measurement may be low 
-limpet.function(20, "Sep", "Oct")
-# Or82: chipped in October 
-limpet.function(20, "Dec", "Jan")
-# W57: appears to be accurate in pictures 
 
 ``` 
-
-``` {r plate21} 
-limpet.function(21, "Jul", "Aug")
-# Gr28: camera angle? 
-limpet.function(21, "Nov", "Dec")
-# B6: camera angle and some overlap in December 
-
-```
-
-``` {r plate22}
-limpet.function(22, "Jul", "Aug")
-# Gr66 
-limpet.function(22, "Aug", "Sep")
-# Gr66 
-limpet.function(22, "Oct", "Nov")
-# Gr66
-```
-
-Gr66 appears to have significant growth throughout the 6 months. Some camera angles may alter the observed growth 
-
-``` {r plate23} 
-limpet.function(23, "Jul", "Aug")
-# B61 
-limpet.function(23, "Aug", "Sep")
-# B61 
-limpet.function(23, "Sep", "Oct")
-# B61 and W36 
-limpet.function(23, "Oct", "Nov")
-# B61 and W36 
-limpet.function(23, "Dec", "Jan")
-# Or3, W36, B61, Gr78
-
-```
-
-Plate 23 seems to be an outlier in comparison to the other plates. It appears that this plate has much higher growth than other plates, specifically B61. There is a noticable difference from the start of B61 in Jul to Jan. It is possible that there is an error in measurements and it might be advisable to redue the measurements for this plate all the way through. 
-
-``` {r plate24} 
-limpet.function(24, "Jul", "Aug")
-# B62 and Or90
-# Or90 may be due to camera angle 
-limpet.function(24, "Sep", "Oct")
-# B62: camera angle + growth 
-limpet.function(24, "Oct", "Nov")
-# Or90 and B62 
-
-```
-
+  
+## Three plate function 
 The function below is a direct addition to the previous function which plots one plate growth between two consecutive months. This function plots three plates' growth between consectuive months. The function is capable of plotting any plates, but graphs best when the plate numbers are close together, example: 7, 8, 9. Like above, the months are three letter abbreviations and are written in quotation marks, example: July = "Jul", November = "Nov". 
-``` {r 3platefunction} 
+
+``` {r 3platefunction, echo= TRUE} 
 three.plate= function(plate1, plate2, plate3, month1, month2){
   
   temp1= as.data.frame(limpet[limpet$Plate == plate1,])
@@ -291,19 +232,23 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
   temp$diff[temp[,replacementMonth] == TRUE]= NA
   
   temp= temp[!is.na(temp$diff),]
-  
+ 
+  # Take into account the total max/min for all three plates  
   ymax= max(temp$diff, na.rm= TRUE)
   ymin= min(temp$diff, na.rm= TRUE) 
   
+  # Plot the first plate only taking into account max/min 
   plot(x= temp$Plate[temp$Plate == plate1], 
        y= temp$diff[temp$Plate == plate1], 
        col= "blue", pch= 1, 
        xlim = c(plate1 -3 , plate3 + 3), 
        ylim= c(ymin -2, ymax +2),
        xlab= "Plate Number", ylab= "Limpet Growth mm2")
+  # Add points for the second plate 
   points(x= temp$Plate[temp$Plate == plate2], 
          y= temp$diff[temp$Plate == plate2], 
          col="red", pch= 2 )
+  # Add points for the third plate 
   points(x= temp$Plate[temp$Plate == plate3], 
          y= temp$diff[temp$Plate == plate3], 
          col= "green",pch= 3 )
@@ -312,6 +257,7 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
        cex=0.7, pos = 4)
   abline(b= 0, h= 5, col= "red")
   abline(b=0, h= -5, col= "red")
+  # Create a legend which identifies the plate with the color 
   legend("topright", legend= c(plate1, plate2, plate3), 
          col = c("blue", "red", "green"), 
          pch = c(1, 2, 3), title = "Plate Number", cex = 0.75 ) 
@@ -320,7 +266,30 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
 
 ``` 
 
-``` {r five_plate_growth}
+## Plate 18:
+  * The large growth of plate 18 limpets may be due to human errors of camera angle or calculating the mm2, but the limpet measurements appear reasonalbe 
+
+## Plate 19: 
+  * W47 falls outside of the boundaries from August to September most likely do to human error in the measurements 
+
+## Plate 20: 
+  August to September 
+    * Or34: September measurements may be low 
+  September to October 
+    * Or82 is chipped in October 
+  December to January 
+    * W57 appears to be accurate in the pictures 
+    
+ Below is an example of the Three Plate Tracker Function for the month of August to September    
+```{r threeplot, echo= TRUE}
+three.plate(18, 19, 20, "Aug", "Sep")
+
+```
+
+
+## Five Plate Function 
+Similar to the one plate function and the three plate function to plot the difference in limpet growth, this function does the same with five total plates. The function is very similar to the three plate with the addition of two more plates being plotted. A legend is created the same way and the function is best run when 5 plates are in a row (1, 2, 3, 4, 5). 
+``` {r five_plate_growth, echo= TRUE}
 
 five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
   
@@ -381,52 +350,67 @@ five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
 
 ``` 
 
-``` {r dataframe_tracker}
+## Tracker Function 
+The below function is designed to track the growth of a single plate throughout the entire six month time frame. Limpets are tracked by a line connecting a single, same limpet in time. Lines that end or do not start until later in the plot show a limpet that was either remarked, new, or left. Some tags in the final month have a color (G) and then "no tag". This is because this was the last month of tracking, and limpets that loss a tag but appeared to be the same from the previous month were given this tag. 
+``` {r dataframe_tracker, echo= TRUE, warning= FALSE}
 tracker= function(plate1){
+  # Subset the full data frame to only provide for a single plate 
   data= as.data.frame(limpet[limpet$Plate == plate1,])
+  # Only include the columns for Plate, Area, Growth, Replacement, and Tag
   data= subset(data, select= c(1:6, 8:12, 14:18, 20:24, 26:30, 32:36, 38:42,
                                44:47) )
 
+  # Subset out each month's data into a single data frame 
+  # Add a column for Number which tracks a single limpet throughout 
+  # each month. 
+  # Number 1 should be the same limpet in all months 
   sub1= subset(data, select = c("Date2", "Tag.Jul", "ReplacementJul", "AreaJul.mm2", "GrowthJul.Area.mm2"))
   colnames(sub1)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub1$Num= 1:nrow(data)
   sub2= subset(data, select= c("Date3", "Tag.Aug", "ReplacementAug", "AreaAug.mm2", "GrowthAug.Area.mm2"))
   colnames(sub2)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub2$Num= 1:nrow(data)
-  sub3= subset(data, select = c("Date3", "Tag.Sep", "ReplacementSep", "AreaSep.mm2","GrowthSep.Area.mm2"))
+  sub3= subset(data, select = c("Date4", "Tag.Sep", "ReplacementSep", "AreaSep.mm2","GrowthSep.Area.mm2"))
   colnames(sub3)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub3$Num= 1:nrow(data)
-  sub4= subset(data, select = c("Date4", "Tag.Oct", "ReplacementOct", "AreaOct.mm2","GrowthOct.Area.mm2"))
+  sub4= subset(data, select = c("Date5", "Tag.Oct", "ReplacementOct", "AreaOct.mm2","GrowthOct.Area.mm2"))
   colnames(sub4)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub4$Num= 1:nrow(data)
-  sub5= subset(data, select = c("Date5", "Tag.Nov", "ReplacementNov", "AreaNov.mm2","GrowthNov.Area.mm2"))
+  sub5= subset(data, select = c("Date6", "Tag.Nov", "ReplacementNov", "AreaNov.mm2","GrowthNov.Area.mm2"))
   colnames(sub5)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub5$Num= 1:nrow(data)
-  sub6= subset(data, select = c("Date6", "Tag.Dec", "ReplacementDec", "AreaDec.mm2","GrowthDec.Area.mm2"))
+  sub6= subset(data, select = c("Date7", "Tag.Dec", "ReplacementDec", "AreaDec.mm2","GrowthDec.Area.mm2"))
   colnames(sub6)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub6$Num= 1:nrow(data)
-  sub7= subset(data, select = c("Date7", "Tag.Jan", "ReplacementJan", "AreaJan.mm2","GrowthJan.Area.mm2"))
+  sub7= subset(data, select = c("Date8", "Tag.Jan", "ReplacementJan", "AreaJan.mm2","GrowthJan.Area.mm2"))
   colnames(sub7)= c("Date", "Tag", "Replacement", "Area", "Growth")
   sub7$Num= 1:nrow(data)
   
+  # Combine all of the data frames into a single long-form data frame 
   longdata= rbind(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
   
   # Clean-up 
   rm(sub1, sub2, sub3, sub4, sub5, sub6, sub7)
   
+  # Convert the Growth column to numeric
   longdata$Growth= as.numeric(longdata$Growth)
   
   for(i in 1:length(unique(longdata$Num)) ) {
-    
+   # Go through the data frame. If the Number column is 1, then make a plot
+    # Plot the Growth on the y-axis, Date on the x-axis 
+    # Include the TagID for the limpet throughout the plot 
     if(i == 1){
       plot(x= longdata$Date[longdata$Num == i], 
            y= longdata$Growth[longdata$Num == i], col= i, 
            xlab= "Months", ylab= "Growth mm2",
-           ylim= c(min(longdata$Growth, na.rm= TRUE), max(longdata$Growth, na.rm = TRUE) ) )
+           ylim= c(min(longdata$Growth, na.rm= TRUE),
+                   max(longdata$Growth, na.rm = TRUE) ),
+           xlim = c(min(longdata$Date), as.Date('2015-02-01')))
       text(x= longdata$Date[longdata$Num == i], 
            y= longdata$Growth[longdata$Num == i], 
          labels = longdata[longdata$Num == i, "Tag"],
          cex=0.7, pos = 4)
+      # If Number ≠ 1, then make a points for each Number (2-etc.)
     } else {
       points(x= longdata$Date[longdata$Num == i], 
              y= longdata$Growth[longdata$Num == i], col=i+1)
@@ -439,7 +423,8 @@ tracker= function(plate1){
   
   
 for(i in 1:length(unique(longdata$Num)) ) {
-    
+    # For those limpets, if the number is the same, then connect them
+    # with a line 
     if(i == 1){  
       lines(x= longdata$Date[longdata$Num == i], 
            y= longdata$Growth[longdata$Num == i], col= i)
@@ -452,7 +437,14 @@ for(i in 1:length(unique(longdata$Num)) ) {
 }
 ```
 
-```{r save_df}
+Below is an example of the tracker function on plate 21. 
+```{r tracker, echo= TRUE, warning= FALSE }
+tracker(21)
+```
+
+## Generate Dataframe Funciton 
+The below function takes the entire original dataframe and converts it into a long version which includes the Date, Tag, Replacement, Area.mm2, Growth.mm2, and also a column for Number. The number column is designed to track a single limpet through time.  
+```{r save_df, echo= TRUE}
 dataframe= function(plate1){
   data= as.data.frame(limpet[limpet$Plate == plate1,])
   data= subset(data, select= c(1:6, 8:12, 14:18, 20:24, 26:30, 32:36, 38:42,
