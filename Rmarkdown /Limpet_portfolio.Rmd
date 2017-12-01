@@ -9,7 +9,7 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-2014 Limpet Growth Tracked: Jun 2014 to Jan 2015 
+Limpet growth was tracked on a combination of over 200 different plates for a span of 6 months in 2014-2015. The time frame began in June of 2014 and concluded in January of 2015. Limpets were identified by using a tag color and ID. Limpets were tracked by their Area in mm2. The difference between months allowed for the calculation of the growth in mm2. The below functions plot: individual plate growth between months, three plates worth of growth between months, five plates worth of growth between months, limpet growth on a single plate throughout the six months, and the creation of a data frame in a long frame for an individual plate throughout the six months. 
 
 ``` {r importfulldata, echo= TRUE, warning= FALSE}
 # Prepare library for reading xlsx file 
@@ -70,7 +70,7 @@ limpet$Date8= as.Date.character(limpet$Date8, "%Y%m%d" )
 ## 1 Plate Function 
 The below function creates a plot of the difference between two months, and plots the tag color and number next to the point. Lines are added at the growth mark of ±5mm2. This number was chosen as an estimate of an acceptable amount of area to be gained or lost. Growth within these red lines is assumed to be accepted. 
 ``` {r limpetfunction, echo= TRUE}
-limpet.function= function(plate, month1, month2){
+one.plate= function(plate, month1, month2){
   # Subset data for only the single plate
   temp= as.data.frame(limpet[limpet$Plate == plate,])
   
@@ -97,7 +97,8 @@ limpet.function= function(plate, month1, month2){
   
   # Plot the difference between two months 
   # ±5 is the "acceptable" growth/loss for a limpet 
-  plot(x= temp$Plate, y= temp$diff, xlim = c(plate - 2, plate + 2) )
+  plot(x= temp$Plate, y= temp$diff, xlim = c(plate - 2, plate + 2), 
+       main= paste("Limpet Growth from", month1, "to", month2) )
   text(x= temp$Plate, y=temp$diff, 
        labels = temp[, tagMonth],
        cex=0.7, pos = 4)
@@ -106,6 +107,9 @@ limpet.function= function(plate, month1, month2){
                                   
 }
 ``` 
+# Working Plot Anaylsis 
+  The below plots were created to fact-check the data set. Plates which included limpets outside of the growth of ±5 mm2 were set aside to look at the pictures between months. 
+  Many of the growths that fall outside of this 5 mm2 range may be explained by a variation in the calibration of the picture measurements. However, some of the limpets may have been partially covered during one month, or incorrectly identified. The below set examines the plates up to 20 as a working example. 
 
 ## Plate 1: 
   * W5 is partially covered by another limpet in September
@@ -243,7 +247,8 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
        col= "blue", pch= 1, 
        xlim = c(plate1 -3 , plate3 + 3), 
        ylim= c(ymin -2, ymax +2),
-       xlab= "Plate Number", ylab= "Limpet Growth mm2")
+       xlab= "Plate Number", ylab= "Limpet Growth mm2", 
+       main= paste("Limpet Growth from", month1, "to", month2) )
   # Add points for the second plate 
   points(x= temp$Plate[temp$Plate == plate2], 
          y= temp$diff[temp$Plate == plate2], 
@@ -324,7 +329,8 @@ five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
        col= "blue", pch= 1, 
        xlim = c(plate1 -3 , plate3 + 3), 
        ylim= c(ymin -2, ymax +2),
-       xlab= "Plate Number", ylab= "Limpet Growth mm2")
+       xlab= "Plate Number", ylab= "Limpet Growth mm2", 
+       main= paste("Limpet Growth from", month1, "to", month2) )
   points(x= temp$Plate[temp$Plate == plate2], 
          y= temp$diff[temp$Plate == plate2], 
          col="red", pch= 2 )
@@ -342,13 +348,17 @@ five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
        cex=0.7, pos = 4)
   abline(b= 0, h= 5, col= "red")
   abline(b=0, h= -5, col= "red")
-  legend("topright", legend= c(plate1, plate2, plate3, plate4, plate5), 
+  legend("topleft", legend= c(plate1, plate2, plate3, plate4, plate5), 
          col = c("blue", "red", "green", "orange", "black"), 
          pch = c(1, 2, 3, 4, 5), title = "Plate Number", cex = 0.75 ) 
                                   
 }
 
 ``` 
+## Five Plate Example 
+```{r five, echo= TRUE, warning= FALSE}
+five.plate(21, 22, 23, 24, 25, "Sep", "Oct")
+```
 
 ## Tracker Function 
 The below function is designed to track the growth of a single plate throughout the entire six month time frame. Limpets are tracked by a line connecting a single, same limpet in time. Lines that end or do not start until later in the plot show a limpet that was either remarked, new, or left. Some tags in the final month have a color (G) and then "no tag". This is because this was the last month of tracking, and limpets that loss a tag but appeared to be the same from the previous month were given this tag. 
@@ -405,7 +415,8 @@ tracker= function(plate1){
            xlab= "Months", ylab= "Growth mm2",
            ylim= c(min(longdata$Growth, na.rm= TRUE),
                    max(longdata$Growth, na.rm = TRUE) ),
-           xlim = c(min(longdata$Date), as.Date('2015-02-01')))
+           xlim = c(min(longdata$Date), as.Date('2015-02-01')), 
+           main= paste("Six Month Limpet Tracker of Plate", plate1) ) 
       text(x= longdata$Date[longdata$Num == i], 
            y= longdata$Growth[longdata$Num == i], 
          labels = longdata[longdata$Num == i, "Tag"],
