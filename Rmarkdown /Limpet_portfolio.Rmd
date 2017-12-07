@@ -1,5 +1,5 @@
 ---
-title: "LImpet Growth Portfolio"
+title: "Growth Portfolio"
 author: "Dylan Projansky"
 date: "10/28/2017"
 output: word_document
@@ -9,7 +9,7 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Limpet growth was tracked on a combination of over 200 different plates for a span of 6 months in 2014-2015. The time frame began in June of 2014 and concluded in January of 2015. Limpets were identified by using a tag color and ID. Limpets were tracked by their Area in mm2. The difference between months allowed for the calculation of the growth in mm2. The below functions plot: individual plate growth between months, three plates worth of growth between months, five plates worth of growth between months, limpet growth on a single plate throughout the six months, and the creation of a data frame in a long frame for an individual plate throughout the six months. 
+Limpet growth was tracked on a combination of over 200 different plates for a span of 6 months in 2014-2015. The time frame began in June of 2014 and concluded in January of 2015. Limpets were identified by using a tag color and ID. Limpets were tracked by their Area in mm2. The difference between months allowed for the calculation of the growth in mm2. The below functions plot: individual plate growth between months, three plates worth of growth between months, limpet growth on a single plate throughout the six months, and the creation of a data frame in a long frame for an individual plate throughout the six months. 
 
 ``` {r importfulldata, echo= TRUE, warning= FALSE}
 # Prepare library for reading xlsx file 
@@ -95,15 +95,34 @@ one.plate= function(plate, month1, month2){
   
   temp= temp[!is.na(temp$diff),]
   
-  # Plot the difference between two months 
-  # ±5 is the "acceptable" growth/loss for a limpet 
-  plot(x= temp$Plate, y= temp$diff, xlim = c(plate - 2, plate + 2), 
-       main= paste("Limpet Growth from", month1, "to", month2) )
+  # Calculate the max/min difference values 
+  maxdiff= max(temp$diff, na.rm = TRUE)
+  mindiff= min(temp$diff, na.rm= TRUE) 
+  ylims= c(mindiff, maxdiff)
+  
+  if(ylims[1]< -6){
+    # do nothing
+  } else {
+      ylims[1] = -6
+      }
+  
+  if(ylims[2]> 6){
+    # do nothing
+  } else {
+      ylims[2] = 6
+      }
+  
+  plot(x= temp$Plate, y= temp$diff, 
+        xlim = c(plate - 2, plate + 2), ylim= ylims,
+        xlab= "Plate Number", 
+        ylab= expression(paste("Growth mm" ^2, sep= '')), 
+        main= paste("Growth of Plate", plate, "from", month1, "to", month2) )
   text(x= temp$Plate, y=temp$diff, 
        labels = temp[, tagMonth],
        cex=0.7, pos = 4)
   abline(b= 0, h= 5, col= "red")
   abline(b=0, h= -5, col= "red")
+  abline(b=0, h=0, col= "black", lty=2) 
                                   
 }
 ``` 
@@ -116,9 +135,9 @@ one.plate= function(plate, month1, month2){
   * W5 might have been replaced from October to November
   * Coloration in pictures look slightly different
 ``` {r plate1_W5, echo= TRUE}
-limpet.function(1, "Aug", "Sep")
-limpet.function(1, "Sep", "Oct")
-limpet.function(1, "Oct", "Nov")
+one.plate(1, "Aug", "Sep")
+one.plate(1, "Sep", "Oct")
+one.plate(1, "Oct", "Nov")
 
 ```
   
@@ -130,8 +149,8 @@ The limpets of plate 2 all maintained a growth of ±5 mm2 per month
   * Believe that the measurement in December is incorrect
   * Change in growth from Nov to December is 0.11 
 ``` {r plate3_Or68, echo= TRUE}
-limpet.function(3, "Nov", "Dec")
-limpet.function(3, "Dec", "Jan")
+one.plate(3, "Nov", "Dec")
+one.plate(3, "Dec", "Jan")
 
 ```
   
@@ -145,8 +164,8 @@ The limpets of plate 7 all maintained a growth of ±5 mm2 per month
   * Or47 increases by about 6 
   * This growth may be accurate
 ``` {r plate8, echo= TRUE}
-limpet.function(8, "Jun", "Jul")
-limpet.function(8, "Jul", "Aug")
+one.plate(8, "Jun", "Jul")
+one.plate(8, "Jul", "Aug")
 
 ```
 
@@ -154,26 +173,24 @@ limpet.function(8, "Jul", "Aug")
 The limpets of plate 9 all maintained a growth of ±5 mm2 per month 
 
 ## Plate 10: 
-  * B78 looks like the same mussel and may have grown an accurate ammount from the months of August to October 
-  * Or22 becomes Or56. Looks like the same mussel with new tag, but not 100%
+  * B78 looks like the same limpet and may have grown an accurate ammount from the months of August to October 
+  * Or22 becomes Or56. Looks like the same limpet with new tag, but not 100%
   * W32 also becomes W63 from Nov to Dec 
 ``` {r plate10, echo= TRUE}
-limpet.function(10, "Aug", "Sep")
-limpet.function(10, "Sep", "Oct")
-limpet.function(10, "Nov", "Dec")
+one.plate(10, "Aug", "Sep")
+one.plate(10, "Sep", "Oct")
+one.plate(10, "Nov", "Dec")
 
 ```
 
 ## Plate 11 
-  June to July 
-    * Gr11 seems to be accurate and could be due to the camera angle
-    * I believe W33 and W62 are not the same mussel 
-  September to October 
-    * W62 and Or62 both have a difference of ±40
-    * This is because we flipped the W62 and Or62 placement in the Excell file
+  * Gr11 seems to be accurate and could be due to the camera angle
+  * I believe W33 and W62 are not the same limpet 
+  * W62 and Or62 both have a difference of ±40
+  * This is because we flipped the W62 and Or62 placement in the Excell file
 ``` {r plate11, echo= TRUE}
-limpet.function(11, "Jun", "Jul")
-limpet.function(11, "Sep", "Oct")
+one.plate(11, "Jun", "Jul")
+one.plate(11, "Sep", "Oct")
 
 ```
 
@@ -185,28 +202,27 @@ limpet.function(11, "Sep", "Oct")
   October to Novmber 
     * W87 is partially covered in October and then is alone in November 
 ``` {r plate12, echo= TRUE}
-limpet.function(12, "Jun", "Jul")
-limpet.function(12, "Aug", "Sep")
-limpet.function(12, "Oct", "Nov")
+one.plate(12, "Jun", "Jul")
+one.plate(12, "Aug", "Sep")
+one.plate(12, "Oct", "Nov")
 
 ```
     
 ## Plate 16:
-  July to August 
-    * Or28, Or26, Gr57: All appear accurate with some variance to camera angle and overlap 
+  * Or28, Or26, Gr57: All appear accurate with some variance to camera angle and overlap 
   * B88: overlap in September  
   * Or16: overlap in December 
 ``` {r plate16, echo= TRUE}
-limpet.function(16, "Jul", "Aug")
-limpet.function(16, "Aug", "Sep")
-limpet.function(16, "Dec", "Jan")
-# Or16: overlap in December  
+one.plate(16, "Jul", "Aug")
+one.plate(16, "Aug", "Sep")
+one.plate(16, "Dec", "Jan")
+ 
 ```
 
 ## Plate 17: 
   *Or27: heavily chipped in November, seems accurate 
 ``` {r plate17, echo= TRUE}
-limpet.function(17, "Nov", "Dec")
+one.plate(17, "Nov", "Dec")
 
 ``` 
   
@@ -240,14 +256,29 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
   # Take into account the total max/min for all three plates  
   ymax= max(temp$diff, na.rm= TRUE)
   ymin= min(temp$diff, na.rm= TRUE) 
+  ylims= c(ymin, ymax)
+  
+  if(ylims[1]< -6){
+    # do nothing
+  } else {
+      ylims[1] = -6
+      }
+  
+  if(ylims[2]> 6){
+    # do nothing
+  } else {
+      ylims[2] = 6
+      }
   
   # Plot the first plate only taking into account max/min 
   plot(x= temp$Plate[temp$Plate == plate1], 
        y= temp$diff[temp$Plate == plate1], 
        col= "blue", pch= 1, 
        xlim = c(plate1 -3 , plate3 + 3), 
-       ylim= c(ymin -2, ymax +2),
-       xlab= "Plate Number", ylab= "Limpet Growth mm2", 
+       ylim= ylims,
+       xlab= "Plate Number", 
+       ylab= expression(paste("Limpet Growth mm" ^2, sep= '')),
+       cex.lab= 0.9, 
        main= paste("Limpet Growth from", month1, "to", month2) )
   # Add points for the second plate 
   points(x= temp$Plate[temp$Plate == plate2], 
@@ -262,6 +293,7 @@ three.plate= function(plate1, plate2, plate3, month1, month2){
        cex=0.7, pos = 4)
   abline(b= 0, h= 5, col= "red")
   abline(b=0, h= -5, col= "red")
+  abline(b=0, h=0, col= "black", lty=2) 
   # Create a legend which identifies the plate with the color 
   legend("topright", legend= c(plate1, plate2, plate3), 
          col = c("blue", "red", "green"), 
@@ -291,10 +323,14 @@ three.plate(18, 19, 20, "Aug", "Sep")
 
 ```
 
-
+``` {r five_plate_growth, echo= FALSE}
 ## Five Plate Function 
-Similar to the one plate function and the three plate function to plot the difference in limpet growth, this function does the same with five total plates. The function is very similar to the three plate with the addition of two more plates being plotted. A legend is created the same way and the function is best run when 5 plates are in a row (1, 2, 3, 4, 5). 
-``` {r five_plate_growth, echo= TRUE}
+## Similar to the one plate function and the three plate function 
+## to plot the difference in limpet growth, this function does the same
+## with five total plates. The function is very similar to the three
+## plate with the addition of two more plates being plotted. A legend is
+## created the same way and the function is best run when 5 plates are in
+## a row (1, 2, 3, 4, 5). 
 
 five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
   
@@ -355,13 +391,9 @@ five.plate= function(plate1, plate2, plate3, plate4, plate5, month1, month2){
 }
 
 ``` 
-## Five Plate Example 
-```{r five, echo= TRUE, warning= FALSE}
-five.plate(21, 22, 23, 24, 25, "Sep", "Oct")
-```
 
 ## Tracker Function 
-The below function is designed to track the growth of a single plate throughout the entire six month time frame. Limpets are tracked by a line connecting a single, same limpet in time. Lines that end or do not start until later in the plot show a limpet that was either remarked, new, or left. Some tags in the final month have a color (G) and then "no tag". This is because this was the last month of tracking, and limpets that loss a tag but appeared to be the same from the previous month were given this tag. 
+The below function is designed to track the growth of a single plate throughout the entire six month time frame. Limpets are tracked by a line connecting a single, same limpet in time. Lines that end or do not start until later in the plot show a limpet that was either remarked, new, or left. Some tags in the final month have a color (G) and then "no tag". This is because this was the last month of tracking, and limpets that lost a tag but appeared to be the same from the previous month were given this tag. 
 ``` {r dataframe_tracker, echo= TRUE, warning= FALSE}
 tracker= function(plate1){
   # Subset the full data frame to only provide for a single plate 
@@ -412,11 +444,12 @@ tracker= function(plate1){
     if(i == 1){
       plot(x= longdata$Date[longdata$Num == i], 
            y= longdata$Growth[longdata$Num == i], col= i, 
-           xlab= "Months", ylab= "Growth mm2",
+           xlab= "Months", 
+           ylab= expression(paste("Growth mm" ^2, sep= '')),
            ylim= c(min(longdata$Growth, na.rm= TRUE),
                    max(longdata$Growth, na.rm = TRUE) ),
            xlim = c(min(longdata$Date), as.Date('2015-02-01')), 
-           main= paste("Six Month Limpet Tracker of Plate", plate1) ) 
+           main= paste("Six Month Tracker of Plate", plate1) ) 
       text(x= longdata$Date[longdata$Num == i], 
            y= longdata$Growth[longdata$Num == i], 
          labels = longdata[longdata$Num == i, "Tag"],
@@ -444,7 +477,7 @@ for(i in 1:length(unique(longdata$Num)) ) {
              y= longdata$Growth[longdata$Num == i], col=i+1)
     }
 }
-
+  abline(b=0, h=0, col= "black", lty=2) 
 }
 ```
 
